@@ -15,7 +15,7 @@ void main() => runApp(MaterialApp(
         backgroundColor: const Color.fromARGB(255, 240, 201, 84),
         child: Text(
           '+',
-          style: TextStyle(fontSize: 30),
+          style: TextStyle(fontSize: 24),
         ),
       ),
     )));
