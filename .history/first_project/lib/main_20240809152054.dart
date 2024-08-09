@@ -14,7 +14,7 @@ void main() => runApp(MaterialApp(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text("hello niggas"),
-          Text(number.toString(), style: TextStyle(fontSize: 70)),
+          Text(number.toString()),
         ],
       )),
       floatingActionButton: FloatingActionButton(

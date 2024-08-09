@@ -18,7 +18,9 @@ void main() => runApp(MaterialApp(
         ],
       )),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          number++;
+        },
         backgroundColor: const Color.fromARGB(255, 240, 201, 84),
         child: Text(
           '+',

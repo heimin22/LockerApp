@@ -5,18 +5,13 @@ int number = 0;
 void main() => runApp(MaterialApp(
         home: Scaffold(
       appBar: AppBar(
-        title: Text('Cebuano++'),
+        title: Text(number.toString()),
         centerTitle: true,
         backgroundColor: const Color.fromARGB(255, 240, 201, 84),
       ),
       body: Center(
-          child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text("hello niggas"),
-          Text(number.toString(), style: TextStyle(fontSize: 70)),
-        ],
-      )),
+        child: Text("hello niggas"),
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {},
         backgroundColor: const Color.fromARGB(255, 240, 201, 84),
