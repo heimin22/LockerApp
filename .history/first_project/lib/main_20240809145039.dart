@@ -5,10 +5,6 @@ void main() => runApp(MaterialApp(
         appBar: AppBar(
           title: Text('Cebuano++'),
           centerTitle: true,
-          backgroundColor: Colors.amber,
-        ),
-        body: Center(
-          child: Text("hello niggas"),
         ),
       ),
     ));

@@ -7,8 +7,6 @@ void main() => runApp(MaterialApp(
           centerTitle: true,
           backgroundColor: Colors.amber,
         ),
-        body: Center(
-          child: Text("hello niggas"),
-        ),
+        body: Center(child: Text("hello niggas")),
       ),
     ));
