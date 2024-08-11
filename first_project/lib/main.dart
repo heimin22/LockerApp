@@ -5,7 +5,12 @@ int number = 0;
 void main() => runApp(MaterialApp(
         home: Scaffold(
       appBar: AppBar(
-        title: Text('Cebuano++'),
+        title: Text(
+          'Cebuano++',
+          style: TextStyle(
+            fontFamily: 'ProductSans',
+          ),
+        ),
         centerTitle: true,
         backgroundColor: const Color.fromARGB(255, 240, 201, 84),
       ),
@@ -14,14 +19,20 @@ void main() => runApp(MaterialApp(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            "hello niggas!",
+            "Hello mga real niggas!",
             style: TextStyle(
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1.0,
-                color: Colors.grey[600]
+              letterSpacing: 1.0,
+              color: Colors.grey[600],
+              fontFamily: 'ProductSans',
             ),
           ),
-          Text(number.toString(), style: TextStyle(fontSize: 70)),
+          Text(
+            number.toString(),
+            style: TextStyle(
+              fontSize: 70,
+              fontFamily: 'ProductSans',
+            ),
+          ),
         ],
       )),
       floatingActionButton: FloatingActionButton(
