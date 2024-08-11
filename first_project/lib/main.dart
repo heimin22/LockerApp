@@ -26,9 +26,10 @@ class MyApp extends StatelessWidget {
                 'Hello mga real niggas!',
                 style: TextStyle(
                   letterSpacing: 1.0,
+                  color: Colors.grey[100],
+                ),
+              ),
 
-                )
-              )
             ],
           ),
         ),
