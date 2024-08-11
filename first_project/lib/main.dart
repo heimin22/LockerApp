@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                'Hello mga real niggas!',
+                'Hello kalibutan!',
                 style: TextStyle(
                   letterSpacing: 1.0,
                   color: Colors.grey[600],
@@ -48,5 +48,13 @@ class MyApp extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void incrementNumber() {
+
+  }
+
+  void decrementNumber() {
+
   }
 }
