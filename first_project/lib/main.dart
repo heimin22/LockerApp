@@ -14,8 +14,12 @@ void main() => runApp(MaterialApp(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            "hello niggas",
-            style: TextStyle(fontWeight: FontWeight.bold),
+            "hello niggas!",
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.0,
+                color: Colors.grey[600]
+            ),
           ),
           Text(number.toString(), style: TextStyle(fontSize: 70)),
         ],
