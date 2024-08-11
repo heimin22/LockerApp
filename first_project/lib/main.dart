@@ -38,13 +38,31 @@ class MyApp extends StatelessWidget {
             ],
           ),
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {},
-          backgroundColor: const Color.fromARGB(255, 240, 201, 84),
-          child: Text(
-            '+',
-            style: TextStyle(fontSize: 30),
-          ),
+        floatingActionButton: Stack(
+          children: <Widget>[
+            Align(
+              alignment: Alignment.bottomRight,
+              child: FloatingActionButton(
+                onPressed: () {},
+                backgroundColor: const Color.fromARGB(255, 240, 201, 84),
+                child: Text(
+                  '+',
+                  style: TextStyle(fontSize: 30),
+                ),
+              ),
+            ),
+            Align(
+              alignment: Alignment.bottomLeft,
+              child: FloatingActionButton(
+                onPressed: () {},
+                backgroundColor: const Color.fromARGB(255, 240, 201, 84),
+                child: Text(
+                  '-',
+                  style: TextStyle(fontSize: 30),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
