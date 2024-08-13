@@ -79,8 +79,8 @@ class _NumberCounterState extends State<NumberCounter> {
             if (showHamster)
               Column(
                 children: [
-                  Image.asset('images/hamster.png'),
-                  SizedBox(height: 10),
+                  Image.asset('assets/hamster.png'),
+                  SizedBox(height: 1),
                   Text(
                     'This is a hamster.',
                     style: TextStyle(
