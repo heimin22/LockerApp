@@ -28,11 +28,13 @@ class NumberCounter extends StatefulWidget {
 // the number activity class
 class _NumberCounterState extends State<NumberCounter> {
   int number = 0;
+  bool showHamster = false;
 
   // increment
   void incrementNumber() {
     setState(() {
       number++;
+      pictureAppearance();
     });
   }
 
@@ -40,6 +42,17 @@ class _NumberCounterState extends State<NumberCounter> {
   void decrementNumber() {
     setState(() {
       number--;
+      pictureAppearance();
+    });
+  }
+
+  void pictureAppearance() {
+    setState(() {
+      if (number == 10) {
+        showHamster = true;
+      } else {
+        showHamster = false;
+      }
     });
   }
 
@@ -63,12 +76,27 @@ class _NumberCounterState extends State<NumberCounter> {
                 color: Colors.grey[600],
               ),
             ),
-            Text(
-              number.toString(),
-              style: TextStyle(
-                fontSize: 70,
+            if (showHamster)
+              Column(
+                children: [
+                  Image.asset('images/hamster.png'),
+                  SizedBox(height: 10),
+                  Text(
+                    'This is a hamster.',
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: Colors.grey[700],
+                    ),
+                  ),
+                ],
+              )
+            else
+              Text(
+                number.toString(),
+                style: TextStyle(
+                  fontSize: 70,
+                ),
               ),
-            ),
           ],
         ),
       ),
