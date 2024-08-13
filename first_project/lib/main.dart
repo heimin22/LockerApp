@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 
 int number = 0;
 
+// run the app
 void main() => runApp(MyApp());
 
+// class for setting the main app activity and the universal properties
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -17,26 +19,31 @@ class MyApp extends StatelessWidget {
   }
 }
 
+// number counter class that runs the number activity class
 class NumberCounter extends StatefulWidget {
   @override
   _NumberCounterState createState() => _NumberCounterState();
 }
 
+// the number activity class
 class _NumberCounterState extends State<NumberCounter> {
   int number = 0;
 
+  // increment
   void incrementNumber() {
     setState(() {
       number++;
     });
   }
 
+  // decrement
   void decrementNumber() {
     setState(() {
       number--;
     });
   }
 
+  // the main application production code
   @override
   Widget build(BuildContext context) {
     return Scaffold(
