@@ -29,6 +29,7 @@ class NumberCounter extends StatefulWidget {
 class _NumberCounterState extends State<NumberCounter> {
   int number = 0;
   bool showHamster = false;
+  bool showHamsterMouse = false;
 
   // increment
   void incrementNumber() {
@@ -50,8 +51,13 @@ class _NumberCounterState extends State<NumberCounter> {
     setState(() {
       if (number == 10) {
         showHamster = true;
+        showHamsterMouse = false;
+      } else if (number == 20) {
+        showHamsterMouse = true;
+        showHamster = false;
       } else {
         showHamster = false;
+        showHamsterMouse = false;
       }
     });
   }
@@ -76,7 +82,21 @@ class _NumberCounterState extends State<NumberCounter> {
                 color: Colors.grey[600],
               ),
             ),
-            if (showHamster)
+            if (showHamsterMouse)
+              Column(
+                children: [
+                  Image.asset('assets/hamster_mouse.png'),
+                  SizedBox(height: 1),
+                  Text(
+                    'This is a hamster with a mouse.',
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: Colors.grey[700],
+                    ),
+                  ),
+                ],
+              )
+            else if (showHamster)
               Column(
                 children: [
                   Image.asset('assets/hamster.png'),
