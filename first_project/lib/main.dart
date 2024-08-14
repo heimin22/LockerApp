@@ -1,3 +1,4 @@
+import 'package:first_project/hiddenScreen.dart';
 import 'package:flutter/material.dart';
 
 int number = 0;
@@ -97,7 +98,12 @@ class _NumberCounterState extends State<NumberCounter> {
               Column(
                 children: [
                   ElevatedButton.icon(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => HiddenScreen()),
+                      );
+                    },
                     icon: Icon(Icons.arrow_right),
                     label: Text('Continue'),
                     style: ButtonStyle(
