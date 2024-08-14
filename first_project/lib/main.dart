@@ -30,6 +30,7 @@ class _NumberCounterState extends State<NumberCounter> {
   int number = 0;
   bool showHamster = false;
   bool showHamsterMouse = false;
+  bool switchToHiddenScreen = false;
 
   // increment
   void incrementNumber() {
@@ -52,12 +53,19 @@ class _NumberCounterState extends State<NumberCounter> {
       if (number == 10) {
         showHamster = true;
         showHamsterMouse = false;
+        switchToHiddenScreen = false;
       } else if (number == 20) {
         showHamsterMouse = true;
         showHamster = false;
+        switchToHiddenScreen = false;
+      } else if (number == 30) {
+        switchToHiddenScreen = true;
+        showHamster = false;
+        showHamsterMouse = false;
       } else {
         showHamster = false;
         showHamsterMouse = false;
+        switchToHiddenScreen = false;
       }
     });
   }
@@ -75,14 +83,31 @@ class _NumberCounterState extends State<NumberCounter> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              'Hello kalibutan!',
-              style: TextStyle(
-                letterSpacing: 1.0,
-                color: Colors.grey[600],
+            Padding(
+              padding: const EdgeInsets.only(bottom: 15.0),
+              child: Text(
+                'Hello kalibutan!',
+                style: TextStyle(
+                  letterSpacing: 1.0,
+                  color: Colors.grey[600],
+                ),
               ),
             ),
-            if (showHamsterMouse)
+            if (switchToHiddenScreen)
+              Column(
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: () {},
+                    icon: Icon(Icons.arrow_right),
+                    label: Text('Continue'),
+                    style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all(
+                      Color.fromARGB(255, 240, 201, 84),
+                    )),
+                  ),
+                ],
+              )
+            else if (showHamsterMouse)
               Column(
                 children: [
                   Image.asset('assets/hamster_mouse.png'),
@@ -127,10 +152,7 @@ class _NumberCounterState extends State<NumberCounter> {
             child: FloatingActionButton(
               onPressed: incrementNumber,
               backgroundColor: const Color.fromARGB(255, 240, 201, 84),
-              child: Text(
-                '+',
-                style: TextStyle(fontSize: 30),
-              ),
+              child: Icon(Icons.add),
             ),
           ),
           Align(
@@ -140,10 +162,7 @@ class _NumberCounterState extends State<NumberCounter> {
               child: FloatingActionButton(
                 onPressed: decrementNumber,
                 backgroundColor: const Color.fromARGB(255, 240, 201, 84),
-                child: Text(
-                  '-',
-                  style: TextStyle(fontSize: 30),
-                ),
+                child: Icon(Icons.remove),
               ),
             ),
           ),
