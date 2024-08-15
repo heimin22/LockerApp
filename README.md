@@ -67,7 +67,7 @@ Contributions are welcome! If you'd like to contribute to the project, please fo
 
 ## Disclaimer
 
-Locker is intended for personal use only. The developers are not responsible for any misuse of the application. Always use the app responsibly to protect your privacy.
+Locker is intended for personal use only. I'm not responsible for any misuse of the application. Always use the app responsibly to protect your privacy.
 
 ---
 
@@ -77,4 +77,3 @@ If you have any questions or suggestions, feel free to open an issue or contact 
 
 ---
 
-This README provides a comprehensive overview of your "Locker" application, including its features, usage instructions, and how to contribute. You can customize the content as needed.
