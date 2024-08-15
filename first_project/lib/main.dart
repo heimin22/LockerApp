@@ -22,7 +22,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-
 // number counter class that runs the number activity class
 class NumberCounter extends StatefulWidget {
   @override
@@ -30,7 +29,8 @@ class NumberCounter extends StatefulWidget {
 }
 
 // the number activity class
-class _NumberCounterState extends State<NumberCounter> with WidgetsBindingObserver{
+class _NumberCounterState extends State<NumberCounter>
+    with WidgetsBindingObserver {
   int number = 0;
   bool showHamster = false;
   bool showHamsterMouse = false;
@@ -64,8 +64,7 @@ class _NumberCounterState extends State<NumberCounter> with WidgetsBindingObserv
       SystemNavigator.pop();
       // terminates the process
       exit(0);
-    }
-    else if (Platform.isIOS) {
+    } else if (Platform.isIOS) {
       exit(0);
     }
   }
