@@ -1,5 +1,7 @@
 import 'package:first_project/hiddenScreen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'dart:io';
 
 int number = 0;
 
@@ -20,6 +22,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
+
 // number counter class that runs the number activity class
 class NumberCounter extends StatefulWidget {
   @override
@@ -27,11 +30,45 @@ class NumberCounter extends StatefulWidget {
 }
 
 // the number activity class
-class _NumberCounterState extends State<NumberCounter> {
+class _NumberCounterState extends State<NumberCounter> with WidgetsBindingObserver{
   int number = 0;
   bool showHamster = false;
   bool showHamsterMouse = false;
   bool switchToHiddenScreen = false;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // TODO: implement didChangeAppLifecycleState
+    if (state == AppLifecycleState.paused) {
+      terminateApp();
+    }
+  }
+
+  void terminateApp() {
+    if (Platform.isAndroid) {
+      // minimizes the app (optional)
+      SystemNavigator.pop();
+      // terminates the process
+      exit(0);
+    }
+    else if (Platform.isIOS) {
+      exit(0);
+    }
+  }
 
   // increment
   void incrementNumber() {
