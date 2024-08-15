@@ -113,8 +113,7 @@ class _NumberCounterState extends State<NumberCounter> with WidgetsBindingObserv
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Cebuano++'),
-        centerTitle: true,
+        title: Text('Locker'),
         backgroundColor: const Color.fromARGB(255, 240, 201, 84),
       ),
       body: Center(
