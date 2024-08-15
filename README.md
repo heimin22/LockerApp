@@ -51,17 +51,7 @@ Locker is a secure and simple media-hiding application built with Flutter. It al
 4. **Auto Kill Feature**:
    - The app will automatically terminate and remove itself from the task manager when the home button is pressed, ensuring maximum security.
 
-## File Structure
-
-```
-lib/
-├── main.dart                 # Entry point of the application
-├── hidden_screen.dart        # Hidden screen logic with password entry
-├── hidden_drawer.dart        # Hidden drawer with access to hidden media files
-└── assets/                   # Directory for media assets (images, videos, etc.)
-    ├── hamster.png
-    └── hamster_mouse.png
-```
+---
 
 ## Contributing
 
