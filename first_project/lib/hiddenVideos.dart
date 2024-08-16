@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:first_project/hiddenDrawer.dart';
 
 class hiddenVideosHome extends StatelessWidget {
   @override
@@ -26,6 +27,15 @@ class hiddenVideos extends State<HiddenVideosScreen> {
     // TODO: implement build
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.push (
+              context,
+              MaterialPageRoute(builder: (context) => hiddenDrawerHome()),
+            );
+          },
+        ),
         title: Text('Videos'),
         backgroundColor: const Color.fromARGB(255, 240, 201, 84),
       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:first_project/hiddenDrawer.dart';
 
 class hiddenOthersHome extends StatelessWidget {
   @override
@@ -26,6 +27,15 @@ class hiddenOthers extends State<HiddenOthersScreen> {
     // TODO: implement build
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.push (
+              context,
+              MaterialPageRoute(builder: (context) => hiddenDrawerHome()),
+            );
+          },
+        ),
         title: Text('Others'),
         backgroundColor: const Color.fromARGB(255, 240, 201, 84),
       ),

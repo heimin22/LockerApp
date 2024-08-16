@@ -1,3 +1,4 @@
+import 'package:first_project/hiddenDrawer.dart';
 import 'package:flutter/material.dart';
 
 class hiddenImagesHome extends StatelessWidget {
@@ -8,7 +9,7 @@ class hiddenImagesHome extends StatelessWidget {
       title: 'Images',
       color: const Color.fromARGB(255, 240, 201, 84),
       theme: ThemeData(
-        fontFamily: 'ProductSans'
+          fontFamily: 'ProductSans'
       ),
       home: HiddenImagesScreen(),
     );
@@ -26,7 +27,15 @@ class hiddenImages extends State<HiddenImagesScreen> {
     // TODO: implement build
     return Scaffold(
       appBar: AppBar(
-
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.push (
+              context,
+              MaterialPageRoute(builder: (context) => hiddenDrawerHome()),
+            );
+          },
+        ),
         title: Text('Images'),
         backgroundColor: const Color.fromARGB(255, 240, 201, 84),
       ),
