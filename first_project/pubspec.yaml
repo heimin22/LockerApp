@@ -62,7 +62,9 @@ flutter:
     - assets/hamster.png
     - assets/hamsterjpg.jpg
     - assets/hamster_mouse.png
-
+    - assets/otherfiles_icon.png
+    - assets/picture_icon.png
+    - assets/video_icon.png
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 
