@@ -1,36 +1,38 @@
 import 'package:first_project/hiddenScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'dart:io';
+
+import 'package:permission_handler/permission_handler.dart';
 
 int number = 0;
 
 // run the app
-void main() => runApp(MyApp());
+void main() => runApp(LockerApp());
 
 // class for setting the main app activity and the universal properties
-class MyApp extends StatelessWidget {
+class LockerApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Cebuano++',
+      title: 'Locker',
       theme: ThemeData(
         fontFamily: 'ProductSans',
       ),
-      home: NumberCounter(),
+      home: HomeScreen(),
     );
   }
 }
 
 // number counter class that runs the number activity class
-class NumberCounter extends StatefulWidget {
+class HomeScreen extends StatefulWidget {
   @override
-  _NumberCounterState createState() => _NumberCounterState();
+  HomeScreenState createState() => HomeScreenState();
 }
 
 // the number activity class
-class _NumberCounterState extends State<NumberCounter>
-    with WidgetsBindingObserver {
+class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   int number = 0;
   bool showHamster = false;
   bool showHamsterMouse = false;
@@ -41,6 +43,7 @@ class _NumberCounterState extends State<NumberCounter>
     // TODO: implement initState
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    requestPermissions();
   }
 
   @override
@@ -105,6 +108,28 @@ class _NumberCounterState extends State<NumberCounter>
         switchToHiddenScreen = false;
       }
     });
+  }
+
+  Future<void> requestPermissions() async {
+    Map<Permission, PermissionStatus> statuses = await [
+      Permission.photos,
+      Permission.storage,
+      Permission.mediaLibrary, // for iOS
+      Permission.manageExternalStorage, // for Android 11+
+    ].request();
+
+    if (statuses[Permission.photos]!.isDenied ||
+        statuses[Permission.storage]!.isDenied ||
+        statuses[Permission.manageExternalStorage]!.isDenied) {
+      Fluttertoast.showToast(
+        msg: 'Permissions are required to access and manage files.',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.black12,
+        textColor: Colors.white70,
+        fontSize: 12.0,
+      );
+    }
   }
 
   // the main application production code

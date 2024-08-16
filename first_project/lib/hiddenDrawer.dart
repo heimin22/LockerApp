@@ -1,3 +1,4 @@
+import 'package:first_project/main.dart';
 import 'package:flutter/material.dart';
 import 'package:first_project/hiddenImages.dart';
 import 'package:first_project/hiddenVideos.dart';
@@ -29,6 +30,15 @@ class hiddenDrawer extends State<HiddenDrawerScreen> {
     // TODO: implement build
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.push (
+              context,
+              MaterialPageRoute(builder: (context) => LockerApp()),
+            );
+          },
+        ),
         title: Text('Drawer'),
         backgroundColor: const Color.fromARGB(255, 240, 201, 84),
       ),
