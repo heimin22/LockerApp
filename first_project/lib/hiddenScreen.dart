@@ -33,7 +33,7 @@ class HiddenScreenHomeState extends State<HiddenScreenHome> {
     if (passwordController.text == password) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => HiddenDrawerScreen()),
+        MaterialPageRoute(builder: (context) => hiddenDrawerHome()),
       );
     } else {
       setState(() {
