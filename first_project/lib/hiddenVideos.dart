@@ -21,6 +21,10 @@ class HiddenVideosScreen extends StatefulWidget {
   hiddenVideos createState() => hiddenVideos();
 }
 
+void addNewVideos() {
+
+}
+
 class hiddenVideos extends State<HiddenVideosScreen> {
   @override
   Widget build(BuildContext context) {
@@ -46,6 +50,18 @@ class hiddenVideos extends State<HiddenVideosScreen> {
             fontSize: 15,
           ),
         ),
+      ),
+      floatingActionButton: Stack(
+        children: <Widget>[
+          Align(
+            alignment: Alignment.bottomRight,
+            child: FloatingActionButton(
+              onPressed: addNewVideos,
+              backgroundColor: const Color.fromARGB(255, 240, 201, 84),
+              child: Icon(Icons.add),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -110,6 +110,40 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     });
   }
 
+  // Future<void> requestPermissions() async {
+  //   List<Permission> permissionsToRequest = [];
+  //
+  //   if (Platform.isAndroid) {
+  //     int? androidVersion = int.tryParse(Platform.version.split('.').first);
+  //     permissionsToRequest.add(Permission.storage);
+  //     if (await Permission.storage.isDenied) {
+  //       permissionsToRequest.add(Permission.storage);
+  //     }
+  //     if (androidVersion != null && androidVersion >= 30) {
+  //       permissionsToRequest.add(Permission.manageExternalStorage);
+  //     }
+  //   } else if (Platform.isIOS) {
+  //     permissionsToRequest.add(Permission.photos);
+  //     permissionsToRequest.add(Permission.mediaLibrary);
+  //   }
+  //
+  //   Map<Permission, PermissionStatus> statuses = await permissionsToRequest
+  //       .request();
+  //
+  //   bool permissionDenied = statuses.values.any((status) => status.isDenied);
+  //
+  //   if (permissionDenied) {
+  //     Fluttertoast.showToast(
+  //       msg: 'Permissions are required to access and manage files.',
+  //       toastLength: Toast.LENGTH_SHORT,
+  //       gravity: ToastGravity.BOTTOM,
+  //       backgroundColor: Colors.black87,
+  //       textColor: Colors.white,
+  //       fontSize: 12.0,
+  //     );
+  //   }
+  // }
+
   Future<void> requestPermissions() async {
     Map<Permission, PermissionStatus> statuses = await [
       Permission.photos,
@@ -168,46 +202,48 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     label: Text('Continue'),
                     style: ButtonStyle(
                         backgroundColor: MaterialStateProperty.all(
-                      Color.fromARGB(255, 240, 201, 84),
-                    )),
-                  ),
-                ],
-              )
-            else if (showHamsterMouse)
-              Column(
-                children: [
-                  Image.asset('assets/hamster_mouse.png'),
-                  SizedBox(height: 1),
-                  Text(
-                    'This is a hamster with a mouse.',
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: Colors.grey[700],
-                    ),
-                  ),
-                ],
-              )
-            else if (showHamster)
-              Column(
-                children: [
-                  Image.asset('assets/hamster.png'),
-                  SizedBox(height: 1),
-                  Text(
-                    'This is a hamster.',
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: Colors.grey[700],
-                    ),
+                          Color.fromARGB(255, 240, 201, 84),
+                        )),
                   ),
                 ],
               )
             else
-              Text(
-                number.toString(),
-                style: TextStyle(
-                  fontSize: 70,
-                ),
-              ),
+              if (showHamsterMouse)
+                Column(
+                  children: [
+                    Image.asset('assets/hamster_mouse.png'),
+                    SizedBox(height: 1),
+                    Text(
+                      'This is a hamster with a mouse.',
+                      style: TextStyle(
+                        fontSize: 20,
+                        color: Colors.grey[700],
+                      ),
+                    ),
+                  ],
+                )
+              else
+                if (showHamster)
+                  Column(
+                    children: [
+                      Image.asset('assets/hamster.png'),
+                      SizedBox(height: 1),
+                      Text(
+                        'This is a hamster.',
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: Colors.grey[700],
+                        ),
+                      ),
+                    ],
+                  )
+                else
+                  Text(
+                    number.toString(),
+                    style: TextStyle(
+                      fontSize: 70,
+                    ),
+                  ),
           ],
         ),
       ),

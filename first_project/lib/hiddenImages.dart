@@ -21,6 +21,10 @@ class HiddenImagesScreen extends StatefulWidget {
   hiddenImages createState() => hiddenImages();
 }
 
+void addNewImages() {
+
+}
+
 class hiddenImages extends State<HiddenImagesScreen> {
   @override
   Widget build(BuildContext context) {
@@ -46,6 +50,18 @@ class hiddenImages extends State<HiddenImagesScreen> {
             fontSize: 15,
           ),
         ),
+      ),
+      floatingActionButton: Stack(
+        children: <Widget>[
+          Align (
+            alignment: Alignment.bottomRight,
+            child: FloatingActionButton(
+              onPressed: addNewImages,
+              backgroundColor: const Color.fromARGB(255, 240, 201, 84),
+              child: Icon(Icons.add),
+            ),
+          ),
+        ],
       ),
     );
   }
