@@ -21,6 +21,10 @@ class HiddenOthersScreen extends StatefulWidget {
   hiddenOthers createState() => hiddenOthers();
 }
 
+void addNewDocuments() {
+  
+}
+
 class hiddenOthers extends State<HiddenOthersScreen> {
   @override
   Widget build(BuildContext context) {
@@ -46,6 +50,18 @@ class hiddenOthers extends State<HiddenOthersScreen> {
             fontSize: 15,
           ),
         ),
+      ),
+      floatingActionButton: Stack(
+        children: <Widget>[
+          Align(
+            alignment: Alignment.bottomRight,
+            child: FloatingActionButton(
+              onPressed: addNewDocuments,
+              backgroundColor: const Color.fromARGB(255, 240, 201, 84),
+              child: Icon(Icons.add),
+            ),
+          ),
+        ],
       ),
     );
   }
