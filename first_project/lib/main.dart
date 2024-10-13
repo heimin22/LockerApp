@@ -16,6 +16,7 @@ class LockerApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Locker',
       theme: ThemeData(
         fontFamily: 'ProductSans',
@@ -55,22 +56,32 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    bool userReturned = false;
     // TODO: implement didChangeAppLifecycleState
-    if (state == AppLifecycleState.paused) {
-      terminateApp();
+    if (state == AppLifecycleState.resumed) {
+      setState(() {
+        userReturned = true;
+        print("User has returned to the app.");
+      });
+    }
+    else if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
+      setState(() {
+        userReturned;
+        print("User is not in the app.");
+      });
     }
   }
 
-  void terminateApp() {
-    if (Platform.isAndroid) {
-      // minimizes the app (optional)
-      SystemNavigator.pop();
-      // terminates the process
-      exit(0);
-    } else if (Platform.isIOS) {
-      exit(0);
-    }
-  }
+  // void terminateApp() {
+  //   if (Platform.isAndroid) {
+  //     // minimizes the app (optional)
+  //     SystemNavigator.pop();
+  //     // terminates the process
+  //     exit(0);
+  //   } else if (Platform.isIOS) {
+  //     exit(0);
+  //   }
+  // }
 
   // increment
   void incrementNumber() {
@@ -144,25 +155,64 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   //   }
   // }
 
-  Future<void> requestPermissions() async {
-    Map<Permission, PermissionStatus> statuses = await [
-      Permission.photos,
-      Permission.storage,
-      Permission.mediaLibrary, // for iOS
-      Permission.manageExternalStorage, // for Android 11+
-    ].request();
+  // Future<void> requestPermissions() async {
+  //   Map<Permission, PermissionStatus> statuses = await [
+  //     Permission.photos,
+  //     Permission.storage,
+  //     Permission.mediaLibrary, // for iOS
+  //     Permission.manageExternalStorage, // for Android 11+
+  //   ].request();
+  //
+  //   if (statuses[Permission.photos]!.isDenied ||
+  //       statuses[Permission.storage]!.isDenied ||
+  //       statuses[Permission.manageExternalStorage]!.isDenied) {
+  //     Fluttertoast.showToast(
+  //       msg: 'Permissions are required to access and manage files.',
+  //       toastLength: Toast.LENGTH_SHORT,
+  //       gravity: ToastGravity.BOTTOM,
+  //       backgroundColor: Colors.black12,
+  //       textColor: Colors.white70,
+  //       fontSize: 12.0,
+  //     );
+  //   }
+  // }
 
-    if (statuses[Permission.photos]!.isDenied ||
-        statuses[Permission.storage]!.isDenied ||
-        statuses[Permission.manageExternalStorage]!.isDenied) {
+  Future<void> requestPermissions() async {
+    try {
+      Map<Permission, PermissionStatus> statuses = await [
+        Permission.photos,
+        Permission.storage,
+        Permission.mediaLibrary, // for iOS
+        Permission.manageExternalStorage, // for Android 11+
+      ].request();
+
+      if (statuses.values.any((status) => status.isGranted)) {
+        // Navigator.push (
+        //   context,
+        //   MaterialPageRoute(builder: (context) => LockerApp()),
+        // );
+      }
+      else {
+        Fluttertoast.showToast(
+            msg: 'Permissions are required to access and manage files.',
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            backgroundColor: Colors.black54,
+            textColor: Colors.white70,
+            fontSize: 12.0,
+        );
+      }
+    }
+    catch (e) {
       Fluttertoast.showToast(
-        msg: 'Permissions are required to access and manage files.',
+        msg: 'Error requesting permissions.',
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.BOTTOM,
-        backgroundColor: Colors.black12,
+        backgroundColor: Colors.black54,
         textColor: Colors.white70,
         fontSize: 12.0,
       );
+      print("Error requesting permissions: $e");
     }
   }
 

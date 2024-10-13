@@ -6,6 +6,7 @@ class hiddenOthersHome extends StatelessWidget {
   Widget build(BuildContext context) {
     // TODO: implement build
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Images',
       color: const Color.fromARGB(255, 240, 201, 84),
       theme: ThemeData(
