@@ -1,6 +1,7 @@
 import 'package:first_project/hiddenDrawer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:first_project/selectingImages.dart';
 import 'dart:io';
 
 class hiddenImagesHome extends StatelessWidget {
@@ -22,10 +23,7 @@ class HiddenImagesScreen extends StatefulWidget {
   hiddenImages createState() => hiddenImages();
 }
 
-void addNewImages() {}
-
-class hiddenImages extends State<HiddenImagesScreen>
-    with WidgetsBindingObserver {
+class hiddenImages extends State<HiddenImagesScreen> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance
@@ -76,7 +74,12 @@ class hiddenImages extends State<HiddenImagesScreen>
           Align(
             alignment: Alignment.bottomRight,
             child: FloatingActionButton(
-              onPressed: addNewImages,
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => selectingImagesHome())
+                );
+              },
               backgroundColor: const Color.fromARGB(255, 240, 201, 84),
               child: Icon(Icons.add),
             ),

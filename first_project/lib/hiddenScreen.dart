@@ -7,6 +7,7 @@ class HiddenScreen extends StatelessWidget {
     return MaterialApp(
       title: 'Locker',
       color: const Color.fromARGB(255, 240, 201, 84),
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         fontFamily: 'ProductSans',
         textSelectionTheme: TextSelectionThemeData(

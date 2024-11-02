@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:first_project/hiddenDrawer.dart';
+import 'package:flutter/services.dart';
 
 class hiddenVideosHome extends StatelessWidget {
   @override
@@ -26,8 +27,29 @@ void addNewVideos() {
 
 }
 
-class hiddenVideos extends State<HiddenVideosScreen> {
+
+class hiddenVideos extends State<HiddenVideosScreen> with WidgetsBindingObserver {
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance
+        .addObserver(this);
+  }
+
   @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.paused) {
+      // App is in background or exited
+      SystemNavigator.pop(); // Kills the app
+    }
+  }
+
   Widget build(BuildContext context) {
     // TODO: implement build
     return Scaffold(

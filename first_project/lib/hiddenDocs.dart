@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:first_project/hiddenDrawer.dart';
+import 'package:flutter/services.dart';
 
 class hiddenOthersHome extends StatelessWidget {
   @override
@@ -26,7 +27,27 @@ void addNewDocuments() {
   
 }
 
-class hiddenOthers extends State<HiddenOthersScreen> {
+class hiddenOthers extends State<HiddenOthersScreen> with WidgetsBindingObserver {
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance
+        .addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.paused) {
+      SystemNavigator.pop();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // TODO: implement build

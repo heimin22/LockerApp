@@ -187,10 +187,14 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       ].request();
 
       if (statuses.values.any((status) => status.isGranted)) {
-        // Navigator.push (
-        //   context,
-        //   MaterialPageRoute(builder: (context) => LockerApp()),
-        // );
+        Fluttertoast.showToast(
+          msg: 'Permissions granted.',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.black54,
+          textColor: Colors.white70,
+          fontSize: 12.0,
+        );
       }
       else {
         Fluttertoast.showToast(
