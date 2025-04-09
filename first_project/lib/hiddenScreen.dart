@@ -7,6 +7,7 @@ class HiddenScreen extends StatelessWidget {
     return MaterialApp(
       title: 'Locker',
       color: const Color.fromARGB(255, 240, 201, 84),
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         fontFamily: 'ProductSans',
         textSelectionTheme: TextSelectionThemeData(
@@ -33,7 +34,7 @@ class HiddenScreenHomeState extends State<HiddenScreenHome> {
     if (passwordController.text == password) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => HiddenDrawerScreen()),
+        MaterialPageRoute(builder: (context) => hiddenDrawerHome()),
       );
     } else {
       setState(() {

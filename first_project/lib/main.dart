@@ -1,36 +1,39 @@
 import 'package:first_project/hiddenScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'dart:io';
+
+import 'package:permission_handler/permission_handler.dart';
 
 int number = 0;
 
 // run the app
-void main() => runApp(MyApp());
+void main() => runApp(LockerApp());
 
 // class for setting the main app activity and the universal properties
-class MyApp extends StatelessWidget {
+class LockerApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Cebuano++',
+      debugShowCheckedModeBanner: false,
+      title: 'Locker',
       theme: ThemeData(
         fontFamily: 'ProductSans',
       ),
-      home: NumberCounter(),
+      home: HomeScreen(),
     );
   }
 }
 
-
 // number counter class that runs the number activity class
-class NumberCounter extends StatefulWidget {
+class HomeScreen extends StatefulWidget {
   @override
-  _NumberCounterState createState() => _NumberCounterState();
+  HomeScreenState createState() => HomeScreenState();
 }
 
 // the number activity class
-class _NumberCounterState extends State<NumberCounter> with WidgetsBindingObserver{
+class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   int number = 0;
   bool showHamster = false;
   bool showHamsterMouse = false;
@@ -41,6 +44,7 @@ class _NumberCounterState extends State<NumberCounter> with WidgetsBindingObserv
     // TODO: implement initState
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    requestPermissions();
   }
 
   @override
@@ -52,23 +56,32 @@ class _NumberCounterState extends State<NumberCounter> with WidgetsBindingObserv
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    bool userReturned = false;
     // TODO: implement didChangeAppLifecycleState
-    if (state == AppLifecycleState.paused) {
-      terminateApp();
+    if (state == AppLifecycleState.resumed) {
+      setState(() {
+        userReturned = true;
+        print("User has returned to the app.");
+      });
+    }
+    else if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
+      setState(() {
+        userReturned;
+        print("User is not in the app.");
+      });
     }
   }
 
-  void terminateApp() {
-    if (Platform.isAndroid) {
-      // minimizes the app (optional)
-      SystemNavigator.pop();
-      // terminates the process
-      exit(0);
-    }
-    else if (Platform.isIOS) {
-      exit(0);
-    }
-  }
+  // void terminateApp() {
+  //   if (Platform.isAndroid) {
+  //     // minimizes the app (optional)
+  //     SystemNavigator.pop();
+  //     // terminates the process
+  //     exit(0);
+  //   } else if (Platform.isIOS) {
+  //     exit(0);
+  //   }
+  // }
 
   // increment
   void incrementNumber() {
@@ -108,6 +121,105 @@ class _NumberCounterState extends State<NumberCounter> with WidgetsBindingObserv
     });
   }
 
+  // Future<void> requestPermissions() async {
+  //   List<Permission> permissionsToRequest = [];
+  //
+  //   if (Platform.isAndroid) {
+  //     int? androidVersion = int.tryParse(Platform.version.split('.').first);
+  //     permissionsToRequest.add(Permission.storage);
+  //     if (await Permission.storage.isDenied) {
+  //       permissionsToRequest.add(Permission.storage);
+  //     }
+  //     if (androidVersion != null && androidVersion >= 30) {
+  //       permissionsToRequest.add(Permission.manageExternalStorage);
+  //     }
+  //   } else if (Platform.isIOS) {
+  //     permissionsToRequest.add(Permission.photos);
+  //     permissionsToRequest.add(Permission.mediaLibrary);
+  //   }
+  //
+  //   Map<Permission, PermissionStatus> statuses = await permissionsToRequest
+  //       .request();
+  //
+  //   bool permissionDenied = statuses.values.any((status) => status.isDenied);
+  //
+  //   if (permissionDenied) {
+  //     Fluttertoast.showToast(
+  //       msg: 'Permissions are required to access and manage files.',
+  //       toastLength: Toast.LENGTH_SHORT,
+  //       gravity: ToastGravity.BOTTOM,
+  //       backgroundColor: Colors.black87,
+  //       textColor: Colors.white,
+  //       fontSize: 12.0,
+  //     );
+  //   }
+  // }
+
+  // Future<void> requestPermissions() async {
+  //   Map<Permission, PermissionStatus> statuses = await [
+  //     Permission.photos,
+  //     Permission.storage,
+  //     Permission.mediaLibrary, // for iOS
+  //     Permission.manageExternalStorage, // for Android 11+
+  //   ].request();
+  //
+  //   if (statuses[Permission.photos]!.isDenied ||
+  //       statuses[Permission.storage]!.isDenied ||
+  //       statuses[Permission.manageExternalStorage]!.isDenied) {
+  //     Fluttertoast.showToast(
+  //       msg: 'Permissions are required to access and manage files.',
+  //       toastLength: Toast.LENGTH_SHORT,
+  //       gravity: ToastGravity.BOTTOM,
+  //       backgroundColor: Colors.black12,
+  //       textColor: Colors.white70,
+  //       fontSize: 12.0,
+  //     );
+  //   }
+  // }
+
+  Future<void> requestPermissions() async {
+    try {
+      Map<Permission, PermissionStatus> statuses = await [
+        Permission.photos,
+        Permission.storage,
+        Permission.mediaLibrary, // for iOS
+        Permission.manageExternalStorage, // for Android 11+
+      ].request();
+
+      if (statuses.values.any((status) => status.isGranted)) {
+        Fluttertoast.showToast(
+          msg: 'Permissions granted.',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.black54,
+          textColor: Colors.white70,
+          fontSize: 12.0,
+        );
+      }
+      else {
+        Fluttertoast.showToast(
+            msg: 'Permissions are required to access and manage files.',
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            backgroundColor: Colors.black54,
+            textColor: Colors.white70,
+            fontSize: 12.0,
+        );
+      }
+    }
+    catch (e) {
+      Fluttertoast.showToast(
+        msg: 'Error requesting permissions.',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.black54,
+        textColor: Colors.white70,
+        fontSize: 12.0,
+      );
+      print("Error requesting permissions: $e");
+    }
+  }
+
   // the main application production code
   @override
   Widget build(BuildContext context) {
@@ -144,46 +256,48 @@ class _NumberCounterState extends State<NumberCounter> with WidgetsBindingObserv
                     label: Text('Continue'),
                     style: ButtonStyle(
                         backgroundColor: MaterialStateProperty.all(
-                      Color.fromARGB(255, 240, 201, 84),
-                    )),
-                  ),
-                ],
-              )
-            else if (showHamsterMouse)
-              Column(
-                children: [
-                  Image.asset('assets/hamster_mouse.png'),
-                  SizedBox(height: 1),
-                  Text(
-                    'This is a hamster with a mouse.',
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: Colors.grey[700],
-                    ),
-                  ),
-                ],
-              )
-            else if (showHamster)
-              Column(
-                children: [
-                  Image.asset('assets/hamster.png'),
-                  SizedBox(height: 1),
-                  Text(
-                    'This is a hamster.',
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: Colors.grey[700],
-                    ),
+                          Color.fromARGB(255, 240, 201, 84),
+                        )),
                   ),
                 ],
               )
             else
-              Text(
-                number.toString(),
-                style: TextStyle(
-                  fontSize: 70,
-                ),
-              ),
+              if (showHamsterMouse)
+                Column(
+                  children: [
+                    Image.asset('assets/hamster_mouse.png'),
+                    SizedBox(height: 1),
+                    Text(
+                      'This is a hamster with a mouse.',
+                      style: TextStyle(
+                        fontSize: 20,
+                        color: Colors.grey[700],
+                      ),
+                    ),
+                  ],
+                )
+              else
+                if (showHamster)
+                  Column(
+                    children: [
+                      Image.asset('assets/hamster.png'),
+                      SizedBox(height: 1),
+                      Text(
+                        'This is a hamster.',
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: Colors.grey[700],
+                        ),
+                      ),
+                    ],
+                  )
+                else
+                  Text(
+                    number.toString(),
+                    style: TextStyle(
+                      fontSize: 70,
+                    ),
+                  ),
           ],
         ),
       ),

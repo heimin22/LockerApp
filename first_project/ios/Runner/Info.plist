@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>First Project</string>
+	<string>Locker</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -45,5 +45,13 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>We need access to your photo library to hide and manage your media files.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>We need access to your camera to hide and manage your media files.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>We need access to your microphone to hide and manage your media files.</string>
+	<key>NSDocumentsFolderUsageDescription</key>
+	<string>We need access to your documents folder to hide and manage your media files.</string>
 </dict>
 </plist>
