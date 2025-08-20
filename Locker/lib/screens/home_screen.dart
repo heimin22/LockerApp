@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:local_auth/local_auth.dart';
 import '../services/auth_service.dart';
 import '../utils/toast_utils.dart';
+import '../themes/app_colors.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -246,7 +247,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               Icon(
                 Icons.lock,
                 size: 80,
-                color: Theme.of(context).primaryColor,
+                color: AppColors.primaryText,
               ),
               const SizedBox(height: 16),
               Text(
