@@ -1,26 +1,16 @@
-import 'package:first_project/hiddenScreen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'dart:io';
+import 'themes/app_theme.dart';
 
-import 'package:permission_handler/permission_handler.dart';
-
-int number = 0;
-
-// run the app
 void main() => runApp(LockerApp());
 
-// class for setting the main app activity and the universal properties
 class LockerApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Locker',
-      theme: ThemeData(
-        fontFamily: 'ProductSans',
-      ),
+      theme: AppTheme.darkTheme,
+      themeMode: AppTheme.themeMode,
       home: HomeScreen(),
     );
   }
@@ -44,7 +34,6 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     // TODO: implement initState
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    requestPermissions();
   }
 
   @override
@@ -71,17 +60,6 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       });
     }
   }
-
-  // void terminateApp() {
-  //   if (Platform.isAndroid) {
-  //     // minimizes the app (optional)
-  //     SystemNavigator.pop();
-  //     // terminates the process
-  //     exit(0);
-  //   } else if (Platform.isIOS) {
-  //     exit(0);
-  //   }
-  // }
 
   // increment
   void incrementNumber() {
@@ -121,106 +99,6 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     });
   }
 
-  // Future<void> requestPermissions() async {
-  //   List<Permission> permissionsToRequest = [];
-  //
-  //   if (Platform.isAndroid) {
-  //     int? androidVersion = int.tryParse(Platform.version.split('.').first);
-  //     permissionsToRequest.add(Permission.storage);
-  //     if (await Permission.storage.isDenied) {
-  //       permissionsToRequest.add(Permission.storage);
-  //     }
-  //     if (androidVersion != null && androidVersion >= 30) {
-  //       permissionsToRequest.add(Permission.manageExternalStorage);
-  //     }
-  //   } else if (Platform.isIOS) {
-  //     permissionsToRequest.add(Permission.photos);
-  //     permissionsToRequest.add(Permission.mediaLibrary);
-  //   }
-  //
-  //   Map<Permission, PermissionStatus> statuses = await permissionsToRequest
-  //       .request();
-  //
-  //   bool permissionDenied = statuses.values.any((status) => status.isDenied);
-  //
-  //   if (permissionDenied) {
-  //     Fluttertoast.showToast(
-  //       msg: 'Permissions are required to access and manage files.',
-  //       toastLength: Toast.LENGTH_SHORT,
-  //       gravity: ToastGravity.BOTTOM,
-  //       backgroundColor: Colors.black87,
-  //       textColor: Colors.white,
-  //       fontSize: 12.0,
-  //     );
-  //   }
-  // }
-
-  // Future<void> requestPermissions() async {
-  //   Map<Permission, PermissionStatus> statuses = await [
-  //     Permission.photos,
-  //     Permission.storage,
-  //     Permission.mediaLibrary, // for iOS
-  //     Permission.manageExternalStorage, // for Android 11+
-  //   ].request();
-  //
-  //   if (statuses[Permission.photos]!.isDenied ||
-  //       statuses[Permission.storage]!.isDenied ||
-  //       statuses[Permission.manageExternalStorage]!.isDenied) {
-  //     Fluttertoast.showToast(
-  //       msg: 'Permissions are required to access and manage files.',
-  //       toastLength: Toast.LENGTH_SHORT,
-  //       gravity: ToastGravity.BOTTOM,
-  //       backgroundColor: Colors.black12,
-  //       textColor: Colors.white70,
-  //       fontSize: 12.0,
-  //     );
-  //   }
-  // }
-
-  Future<void> requestPermissions() async {
-    try {
-      Map<Permission, PermissionStatus> statuses = await [
-        Permission.photos,
-        Permission.storage,
-        Permission.mediaLibrary, // for iOS
-        Permission.manageExternalStorage, // for Android 11+
-      ].request();
-
-      if (statuses.values.any((status) => status.isGranted)) {
-        Fluttertoast.showToast(
-          msg: 'Permissions granted.',
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          backgroundColor: Colors.black54,
-          textColor: Colors.white70,
-          fontSize: 12.0,
-        );
-      }
-      else {
-        Fluttertoast.showToast(
-            msg: 'Permissions are required to access and manage files.',
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.BOTTOM,
-            backgroundColor: Colors.black54,
-            textColor: Colors.white70,
-            fontSize: 12.0,
-        );
-      }
-    }
-    catch (e) {
-      Fluttertoast.showToast(
-        msg: 'Error requesting permissions.',
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: Colors.black54,
-        textColor: Colors.white70,
-        fontSize: 12.0,
-      );
-      print("Error requesting permissions: $e");
-    }
-  }
-
-  // the main application production code
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -247,10 +125,6 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 children: [
                   ElevatedButton.icon(
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => HiddenScreen()),
-                      );
                     },
                     icon: Icon(Icons.arrow_right),
                     label: Text('Continue'),
