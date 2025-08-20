@@ -157,13 +157,13 @@ class AppTheme {
       // Switch
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
+          if (states.contains(WidgetState.selected)) {
             return AppColors.primaryText;
           }
           return AppColors.textTertiary;
         }),
         trackColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
+          if (states.contains(WidgetState.selected)) {
             return AppColors.surface;
           }
           return AppColors.divider;
@@ -184,20 +184,20 @@ class AppTheme {
       
       // Checkbox
       checkboxTheme: CheckboxThemeData(
-        fillColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
+        fillColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
             return AppColors.primaryText;
           }
           return Colors.transparent;
         }),
-        checkColor: MaterialStateProperty.all(AppColors.primaryBackground),
+        checkColor: WidgetStateProperty.all(AppColors.primaryBackground),
         side: BorderSide(color: AppColors.border),
       ),
       
       // Radio
       radioTheme: RadioThemeData(
-        fillColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
+        fillColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
             return AppColors.primaryText;
           }
           return AppColors.border;
@@ -209,7 +209,7 @@ class AppTheme {
         activeTrackColor: AppColors.primaryText,
         inactiveTrackColor: AppColors.divider,
         thumbColor: AppColors.primaryText,
-        overlayColor: AppColors.primaryText.withOpacity(0.2),
+        overlayColor: AppColors.primaryText.withValues(alpha: 0.2),
       ),
     );
   }
