@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'themes/app_theme.dart';
 
 void main() => runApp(LockerApp());
 
@@ -8,9 +9,8 @@ class LockerApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Locker',
-      theme: ThemeData(
-        fontFamily: 'ProductSans',
-      ),
+      theme: AppTheme.darkTheme,
+      themeMode: AppTheme.themeMode,
       home: HomeScreen(),
     );
   }
