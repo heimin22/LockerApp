@@ -3,6 +3,7 @@ import 'package:local_auth/local_auth.dart';
 import '../services/auth_service.dart';
 import '../utils/toast_utils.dart';
 import '../themes/app_colors.dart';
+import 'main_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -193,11 +194,19 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   }
 
   Future<void> _setupBiometrics() async {
+    // Show dialog to get user's passphrase for biometric setup
+    final passphrase = await _showPassphraseDialog();
+    if (passphrase == null) {
+      // User cancelled, proceed to main app without biometrics
+      _navigateToMainApp();
+      return;
+    }
+
     setState(() {
       _isLoading = true;
     });
 
-    final success = await _authService.setupBiometricAuthentication();
+    final success = await _authService.setupBiometricAuthentication(passphrase);
     if (success) {
       ToastUtils.showSuccess('$_biometricDisplayName enabled successfully');
       await _checkBiometricState();
@@ -212,10 +221,74 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     _navigateToMainApp();
   }
 
+  /// Show dialog to get user's passphrase for biometric setup
+  Future<String?> _showPassphraseDialog() async {
+    final passphraseController = TextEditingController();
+    bool isPasswordVisible = false;
+    
+    return await showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: Text('Setup $_biometricDisplayName'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Enter your passphrase to securely setup $_biometricDisplayName authentication.',
+                style: const TextStyle(fontSize: 14),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: passphraseController,
+                obscureText: !isPasswordVisible,
+                decoration: InputDecoration(
+                  labelText: 'Passphrase',
+                  border: const OutlineInputBorder(),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      isPasswordVisible ? Icons.visibility_off : Icons.visibility,
+                    ),
+                    onPressed: () {
+                      setDialogState(() {
+                        isPasswordVisible = !isPasswordVisible;
+                      });
+                    },
+                  ),
+                ),
+                autofocus: true,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                passphraseController.dispose();
+                Navigator.of(context).pop(null);
+              },
+              child: const Text('Skip'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final passphrase = passphraseController.text.trim();
+                passphraseController.dispose();
+                Navigator.of(context).pop(passphrase.isNotEmpty ? passphrase : null);
+              },
+              child: const Text('Setup'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   void _navigateToMainApp() {
-    // TODO: Navigate to the main app screen
-    // For now, we'll show a success message
     ToastUtils.showSuccess('Welcome to Locker!');
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const MainScreen()),
+    );
   }
 
   @override
