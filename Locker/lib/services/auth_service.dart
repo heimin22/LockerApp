@@ -32,9 +32,9 @@ class AuthService {
       final isFirstTimeFlag = isFirstTime == null || isFirstTime == 'true';
       
       // Also check if crypto system is initialized
-      final cryptoInitialized = await _cryptoService.isInitialized();
+      // final cryptoInitialized = await _cryptoService.isInitialized();
       
-      return isFirstTimeFlag || !cryptoInitialized;
+      return isFirstTimeFlag;
     } catch (e) {
       return true; // Default to first time if there's an error
     }
@@ -54,9 +54,9 @@ class AuthService {
         // Remove legacy password hash if it exists
         await _storage.delete(key: _passwordHashKey);
         
-        if (kDebugMode) {
-          print('AuthService: Password created with secure crypto system');
-        }
+        
+        debugPrint('AuthService: Password created with secure crypto system');
+        
         
         return true;
       }
@@ -84,9 +84,9 @@ class AuthService {
         // Use new crypto system
         final isValid = await _cryptoService.verifyPassphrase(password);
         
-        if (kDebugMode) {
-          print('AuthService: Password verified with secure crypto system');
-        }
+        
+        debugPrint('AuthService: Password verified with secure crypto system');
+        
         
         return isValid;
       }
@@ -96,16 +96,12 @@ class AuthService {
       if (legacyHash != null) {
         final computedHash = _hashPassword(password);
         if (computedHash == legacyHash) {
-          if (kDebugMode) {
-            print('AuthService: Legacy password verified, initiating migration');
-          }
+          debugPrint('AuthService: Legacy password verified, initiating migration');
           
           // Migrate to new crypto system
           final migrationSuccess = await _migrateToNewCryptoSystem(password);
           if (migrationSuccess) {
-            if (kDebugMode) {
-              print('AuthService: Successfully migrated to new crypto system');
-            }
+            debugPrint('AuthService: Successfully migrated to new crypto system');
           }
           
           return true;
@@ -114,9 +110,7 @@ class AuthService {
       
       return false;
     } catch (e) {
-      if (kDebugMode) {
-        print('AuthService: Password verification failed: $e');
-      }
+      debugPrint('AuthService: Password verification failed: $e');
       return false;
     }
   }
@@ -158,17 +152,13 @@ class AuthService {
         // When disabling biometrics, remove the biometric master key
         await _cryptoService.removeBiometricMasterKey();
         
-        if (kDebugMode) {
-          print('AuthService: Biometric disabled and master key removed');
-        }
+        debugPrint('AuthService: Biometric disabled and master key removed');
       }
       
       await _storage.write(key: _biometricsEnabledKey, value: enabled.toString());
       return true;
     } catch (e) {
-      if (kDebugMode) {
-        print('AuthService: Failed to set biometric enabled: $e');
-      }
+      debugPrint('AuthService: Failed to set biometric enabled: $e');
       return false;
     }
   }
@@ -179,72 +169,108 @@ class AuthService {
     String reason = 'Please authenticate to access your locker',
   }) async {
     try {
+      debugPrint('AuthService: Starting biometric authentication...');
+      
       final isAvailable = await isBiometricAvailable();
-      if (!isAvailable) return false;
+      if (!isAvailable) {
+        debugPrint('AuthService: Biometric not available on device');
+        return false;
+      }
 
       final isEnabled = await isBiometricEnabled();
-      if (!isEnabled) return false;
+      if (!isEnabled) {
+        debugPrint('AuthService: Biometric not enabled by user');
+        return false;
+      }
 
       // Check if biometric master key is setup
       final hasBiometricKey = await _cryptoService.isBiometricMasterKeySetup();
       if (!hasBiometricKey) {
-        if (kDebugMode) {
-          print('AuthService: Biometric master key not setup');
-        }
+        debugPrint('AuthService: Biometric master key not setup');
         return false;
       }
 
+      final canCheck = await _localAuth.canCheckBiometrics;
+      final supported = await _localAuth.isDeviceSupported();
+      final types = await _localAuth.getAvailableBiometrics();
+      debugPrint('AuthService: Biometric status - canCheck=$canCheck, supported=$supported, types=$types');
+
+      debugPrint('AuthService: Attempting biometric authentication...');
       final isAuthenticated = await _localAuth.authenticate(
         localizedReason: reason,
         authMessages: [
           const AndroidAuthMessages(
             signInTitle: 'Biometric authentication required',
-            cancelButton: 'No thanks',
+            cancelButton: 'Use password instead',
+            goToSettingsButton: 'Settings',
+            goToSettingsDescription: 'Please set up biometric authentication',
+            biometricHint: 'Touch sensor',
+            biometricNotRecognized: 'Biometric not recognized, try again',
+            biometricRequiredTitle: 'Biometric required',
+            biometricSuccess: 'Biometric authentication successful',
+            deviceCredentialsRequiredTitle: 'Device authentication required',
+            deviceCredentialsSetupDescription: 'Please set up device authentication',
           ),
           const IOSAuthMessages(
-            cancelButton: 'No thanks',
+            cancelButton: 'Use password instead',
+            goToSettingsButton: 'Settings',
+            goToSettingsDescription: 'Please set up biometric authentication',
+            lockOut: 'Please re-enable biometric authentication',
           ),
         ],
         options: const AuthenticationOptions(
-          biometricOnly: false,
-          stickyAuth: true,
+          biometricOnly: true,
+          stickyAuth: true, // Changed to true for better reliability
+          useErrorDialogs: true,
         ),
       );
 
       if (isAuthenticated) {
-        if (kDebugMode) {
-          print('AuthService: Biometric authentication successful');
-        }
+        debugPrint('AuthService: Biometric authentication successful');
         return true;
+      } else {
+        debugPrint('AuthService: Biometric authentication failed - user cancelled or failed');
+        return false;
       }
-
-      return false;
     } on PlatformException catch (e) {
-      // Handle specific biometric errors
-      if (e.code == 'NotAvailable') {
-        if (kDebugMode) {
-          print('AuthService: Biometric not available: ${e.message}');
-        }
-        return false;
-      } else if (e.code == 'NotEnrolled') {
-        if (kDebugMode) {
-          print('AuthService: Biometric not enrolled: ${e.message}');
-        }
-        return false;
-      } else if (e.code == 'LockedOut' || e.code == 'PermanentlyLockedOut') {
-        if (kDebugMode) {
-          print('AuthService: Biometric locked out: ${e.message}');
-        }
-        return false;
-      }
-      if (kDebugMode) {
-        print('AuthService: Biometric error: ${e.code} - ${e.message}');
+      // Handle specific biometric errors with better logging
+      debugPrint('AuthService: PlatformException during biometric auth: ${e.code} - ${e.message}');
+      switch (e.code) {
+        case 'NotAvailable':
+          debugPrint('AuthService: Biometric authentication not available');
+          break;
+        case 'NotEnrolled':
+          debugPrint('AuthService: No biometrics enrolled on device');
+          break;
+        case 'LockedOut':
+          debugPrint('AuthService: Biometric authentication locked out temporarily');
+          break;
+        case 'PermanentlyLockedOut':
+          debugPrint('AuthService: Biometric authentication permanently locked out');
+          break;
+        case 'UserCancel':
+          debugPrint('AuthService: User cancelled biometric authentication');
+          break;
+        case 'UserFallback':
+          debugPrint('AuthService: User chose fallback authentication');
+          break;
+        case 'SystemCancel':
+          debugPrint('AuthService: System cancelled biometric authentication');
+          break;
+        case 'InvalidContext':
+          debugPrint('AuthService: Invalid context for biometric authentication');
+          break;
+        case 'BiometricError':
+          debugPrint('AuthService: Generic biometric error');
+          break;
+        default:
+          debugPrint('AuthService: Unknown biometric error: ${e.code}');
+          break;
       }
       return false;
     } catch (e) {
-      if (kDebugMode) {
-        print('AuthService: Biometric authentication failed: $e');
-      }
+      debugPrint('AuthService: Unexpected error during biometric authentication: $e');
+      debugPrint('AuthService: Error type: ${e.runtimeType}');
       return false;
     }
   }
@@ -253,61 +279,109 @@ class AuthService {
   /// This will securely store the master key for biometric access
   Future<bool> setupBiometricAuthentication(String passphrase) async {
     try {
+      debugPrint('AuthService: Starting biometric setup process...');
+      
+      final canCheck = await _localAuth.canCheckBiometrics;
+      final supported = await _localAuth.isDeviceSupported();
+      final probeTypes = await _localAuth.getAvailableBiometrics();
+      debugPrint('AuthService: Biometric setup probe - canCheck=$canCheck, supported=$supported, types=$probeTypes');
+
       final isAvailable = await isBiometricAvailable();
-      if (!isAvailable) return false;
+      if (!isAvailable) {
+        debugPrint('AuthService: Biometric setup failed - not available (canCheck=$canCheck, supported=$supported)');
+        return false;
+      }
 
       final biometrics = await getAvailableBiometrics();
-      if (biometrics.isEmpty) return false;
+      if (biometrics.isEmpty) {
+        debugPrint('AuthService: Biometric setup failed - no biometric types available');
+        return false;
+      }
+
+      debugPrint('AuthService: Biometric setup - available biometrics: $biometrics');
 
       // First verify the passphrase is correct
       final isValidPassphrase = await verifyPassword(passphrase);
       if (!isValidPassphrase) {
-        if (kDebugMode) {
-          print('AuthService: Invalid passphrase provided for biometric setup');
-        }
+        debugPrint('AuthService: Biometric setup failed - invalid passphrase provided');
         return false;
       }
 
+      debugPrint('AuthService: Passphrase verified, showing biometric authentication prompt...');
+
       final isAuthenticated = await _localAuth.authenticate(
-        localizedReason: 'Set up biometric authentication',
+        localizedReason: 'Touch the fingerprint sensor to set up biometric authentication',
         authMessages: [
           const AndroidAuthMessages(
             signInTitle: 'Set up biometric authentication',
             cancelButton: 'Cancel setup',
+            goToSettingsButton: 'Settings',
+            goToSettingsDescription: 'Please set up biometric authentication first',
+            biometricHint: 'Touch sensor to continue setup',
+            biometricNotRecognized: 'Biometric not recognized, please try again',
+            biometricRequiredTitle: 'Biometric setup required',
+            biometricSuccess: 'Biometric setup successful',
+            deviceCredentialsRequiredTitle: 'Device authentication required',
+            deviceCredentialsSetupDescription: 'Please set up device authentication first',
           ),
           const IOSAuthMessages(
             cancelButton: 'Cancel setup',
+            goToSettingsButton: 'Settings',
+            goToSettingsDescription: 'Please set up biometric authentication first',
+            lockOut: 'Please re-enable biometric authentication',
           ),
         ],
         options: const AuthenticationOptions(
-          biometricOnly: false,
+          biometricOnly: true,
           stickyAuth: true,
+          useErrorDialogs: true,
         ),
       );
 
+      debugPrint('AuthService: Biometric authentication result for setup: $isAuthenticated');
+
       if (isAuthenticated) {
+        debugPrint('AuthService: Biometric authentication successful, setting up master key...');
+        
         // Setup the biometric master key
         final biometricKeySetup = await _cryptoService.setupBiometricMasterKey(passphrase);
         if (biometricKeySetup) {
           await setBiometricEnabled(true);
           
-          if (kDebugMode) {
-            print('AuthService: Biometric authentication with master key setup completed');
-          }
+          debugPrint('AuthService: Biometric authentication setup completed successfully');
           
           return true;
         } else {
-          if (kDebugMode) {
-            print('AuthService: Failed to setup biometric master key');
-          }
+          debugPrint('AuthService: Failed to setup biometric master key in crypto service');
           return false;
         }
+      } else {
+        debugPrint('AuthService: Biometric authentication failed or was cancelled during setup');
+      }
+      return false;
+    } on PlatformException catch (e) {
+      debugPrint('AuthService: PlatformException during biometric setup: ${e.code} - ${e.message}');
+      switch (e.code) {
+        case 'NotAvailable':
+          debugPrint('AuthService: Biometric setup failed - not available');
+          break;
+        case 'NotEnrolled':
+          debugPrint('AuthService: Biometric setup failed - no biometrics enrolled');
+          break;
+        case 'UserCancel':
+          debugPrint('AuthService: Biometric setup cancelled by user');
+          break;
+        case 'SystemCancel':
+          debugPrint('AuthService: Biometric setup cancelled by system');
+          break;
+        default:
+          debugPrint('AuthService: Unknown error during biometric setup: ${e.code}');
+          break;
       }
       return false;
     } catch (e) {
-      if (kDebugMode) {
-        print('AuthService: Biometric setup failed: $e');
-      }
+      debugPrint('AuthService: Unexpected error during biometric setup: $e');
+      debugPrint('AuthService: Setup error type: ${e.runtimeType}');
       return false;
     }
   }
@@ -326,9 +400,7 @@ class AuthService {
       }
       return false;
     } catch (e) {
-      if (kDebugMode) {
-        print('AuthService: Migration to new crypto system failed: $e');
-      }
+      debugPrint('AuthService: Migration to new crypto system failed: $e');
       return false;
     }
   }
@@ -348,22 +420,34 @@ class AuthService {
         // This should only be called immediately after successful biometric authentication
         final biometricKey = await _cryptoService.getBiometricMasterKey();
         if (biometricKey != null) {
-          if (kDebugMode) {
-            print('AuthService: Retrieved master key via biometric authentication');
-          }
+          debugPrint('AuthService: Retrieved master key via biometric authentication');
           return biometricKey;
         }
         
-        if (kDebugMode) {
-          print('AuthService: Failed to retrieve biometric master key');
-        }
+        debugPrint('AuthService: Failed to retrieve biometric master key');
         return null;
       }
     } catch (e) {
-      if (kDebugMode) {
-        print('AuthService: Failed to get master key: $e');
-      }
+      debugPrint('AuthService: Failed to get master key: $e');
       return null;
+    }
+  }
+
+  /// Reset biometric authentication only (keeps password intact)
+  Future<bool> resetBiometricAuth() async {
+    try {
+      // Remove biometric master key
+      await _cryptoService.removeBiometricMasterKey();
+      
+      // Disable biometrics
+      await setBiometricEnabled(false);
+      
+      debugPrint('AuthService: Biometric authentication data reset');
+      
+      return true;
+    } catch (e) {
+      debugPrint('AuthService: Failed to reset biometric auth data: $e');
+      return false;
     }
   }
 
@@ -379,15 +463,11 @@ class AuthService {
       await _storage.delete(key: _biometricsEnabledKey);
       await _storage.delete(key: _migrationCompleteKey);
       
-      if (kDebugMode) {
-        print('AuthService: All authentication data reset');
-      }
+      debugPrint('AuthService: All authentication data reset');
       
       return true;
     } catch (e) {
-      if (kDebugMode) {
-        print('AuthService: Failed to reset auth data: $e');
-      }
+      debugPrint('AuthService: Failed to reset auth data: $e');
       return false;
     }
   }
@@ -430,14 +510,7 @@ class AuthService {
   String getBiometricDisplayName(List<BiometricType> biometrics) {
     if (biometrics.contains(BiometricType.fingerprint)) {
       return 'Fingerprint';
-    } else if (biometrics.contains(BiometricType.face)) {
-      return 'Face ID';
-    } else if (biometrics.contains(BiometricType.iris)) {
-      return 'Iris';
-    } else if (biometrics.contains(BiometricType.strong) || 
-               biometrics.contains(BiometricType.weak)) {
-      return 'Biometric';
-    }
+    } 
     return 'Biometric';
   }
 }

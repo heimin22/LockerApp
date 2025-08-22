@@ -41,9 +41,7 @@ class CryptoService {
       final salt = _generateSecureRandomBytes(_saltLength);
       await _storage.write(key: _deviceSaltKey, value: base64Encode(salt));
       
-      if (kDebugMode) {
-        print('CryptoService: Generated new device salt');
-      }
+      debugPrint('CryptoService: Generated new device salt');
       
       return salt;
     } catch (e) {
@@ -81,9 +79,7 @@ class CryptoService {
       }
       return 'unknown_device';
     } catch (e) {
-      if (kDebugMode) {
-        print('CryptoService: Error getting device identifier: $e');
-      }
+      debugPrint('CryptoService: Error getting device identifier: $e');
       return 'fallback_device_id';
     }
   }
@@ -111,9 +107,7 @@ class CryptoService {
       final passphraseBytes = utf8.encode(passphrase);
       final masterKey = _pbkdf2(passphraseBytes, combinedSalt, _pbkdf2Iterations, _keyLength);
 
-      if (kDebugMode) {
-        print('CryptoService: Successfully derived master key (${masterKey.length} bytes)');
-      }
+      debugPrint('CryptoService: Successfully derived master key (${masterKey.length} bytes)');
 
       return masterKey;
     } catch (e) {
@@ -171,15 +165,11 @@ class CryptoService {
       // Clear the master key from memory
       masterKey.fillRange(0, masterKey.length, 0);
       
-      if (kDebugMode) {
-        print('CryptoService: Master key hash created and stored');
-      }
+      debugPrint('CryptoService: Master key hash created and stored');
       
       return true;
     } catch (e) {
-      if (kDebugMode) {
-        print('CryptoService: Failed to create master key hash: $e');
-      }
+      debugPrint('CryptoService: Failed to create master key hash: $e');
       return false;
     }
   }
@@ -189,9 +179,7 @@ class CryptoService {
     try {
       final storedHashBase64 = await _storage.read(key: _masterKeyHashKey);
       if (storedHashBase64 == null) {
-        if (kDebugMode) {
-          print('CryptoService: No stored master key hash found');
-        }
+        debugPrint('CryptoService: No stored master key hash found');
         return false;
       }
 
@@ -205,15 +193,11 @@ class CryptoService {
       // Constant time comparison to prevent timing attacks
       bool isValid = _constantTimeEquals(storedHash, computedHash);
       
-      if (kDebugMode) {
-        print('CryptoService: Passphrase verification ${isValid ? 'successful' : 'failed'}');
-      }
+      debugPrint('CryptoService: Passphrase verification ${isValid ? 'successful' : 'failed'}');
       
       return isValid;
     } catch (e) {
-      if (kDebugMode) {
-        print('CryptoService: Error during passphrase verification: $e');
-      }
+      debugPrint('CryptoService: Error during passphrase verification: $e');
       return false;
     }
   }
@@ -293,15 +277,11 @@ class CryptoService {
       // Clear the master key from memory
       masterKey.fillRange(0, masterKey.length, 0);
       
-      if (kDebugMode) {
-        print('CryptoService: Biometric master key setup completed');
-      }
+      debugPrint('CryptoService: Biometric master key setup completed');
       
       return true;
     } catch (e) {
-      if (kDebugMode) {
-        print('CryptoService: Failed to setup biometric master key: $e');
-      }
+      debugPrint('CryptoService: Failed to setup biometric master key: $e');
       return false;
     }
   }
@@ -312,9 +292,7 @@ class CryptoService {
     try {
       final encryptedKeyBase64 = await _storage.read(key: _biometricKeyKey);
       if (encryptedKeyBase64 == null) {
-        if (kDebugMode) {
-          print('CryptoService: No biometric master key found');
-        }
+        debugPrint('CryptoService: No biometric master key found');
         return null;
       }
       
@@ -332,15 +310,11 @@ class CryptoService {
         )
       );
       
-      if (kDebugMode) {
-        print('CryptoService: Successfully retrieved biometric master key');
-      }
+      debugPrint('CryptoService: Successfully retrieved biometric master key');
       
       return decryptedMasterKey;
     } catch (e) {
-      if (kDebugMode) {
-        print('CryptoService: Failed to retrieve biometric master key: $e');
-      }
+      debugPrint('CryptoService: Failed to retrieve biometric master key: $e');
       return null;
     }
   }
@@ -362,15 +336,11 @@ class CryptoService {
       await _storage.delete(key: _biometricKeyKey);
       await _storage.delete(key: _biometricSaltKey);
       
-      if (kDebugMode) {
-        print('CryptoService: Biometric master key removed');
-      }
+      debugPrint('CryptoService: Biometric master key removed');
       
       return true;
     } catch (e) {
-      if (kDebugMode) {
-        print('CryptoService: Failed to remove biometric master key: $e');
-      }
+      debugPrint('CryptoService: Failed to remove biometric master key: $e');
       return false;
     }
   }
@@ -383,15 +353,11 @@ class CryptoService {
       await _storage.delete(key: _biometricKeyKey);
       await _storage.delete(key: _biometricSaltKey);
       
-      if (kDebugMode) {
-        print('CryptoService: All crypto data reset');
-      }
+      debugPrint('CryptoService: All crypto data reset');
       
       return true;
     } catch (e) {
-      if (kDebugMode) {
-        print('CryptoService: Failed to reset crypto data: $e');
-      }
+      debugPrint('CryptoService: Failed to reset crypto data: $e');
       return false;
     }
   }

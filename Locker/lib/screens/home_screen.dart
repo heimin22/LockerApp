@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:local_auth/local_auth.dart';
 import '../services/auth_service.dart';
 import '../utils/toast_utils.dart';
@@ -18,6 +19,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   final TextEditingController _confirmPasswordController = TextEditingController();
   
   bool _isLoading = true;
+  String _loadingMessage = 'Loading...';
   bool _isFirstTime = true;
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
@@ -50,7 +52,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   Future<void> _initialize() async {
     await _checkAuthState();
-    await _checkBiometricState();
+    if (_isFirstTime) {
+      await _checkBiometricState();
+    }
     setState(() {
       _isLoading = false;
     });
@@ -82,29 +86,32 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     final confirmPassword = _confirmPasswordController.text.trim();
 
     if (password.isEmpty) {
-      ToastUtils.showError('Please enter a password');
+      ToastUtils.showToast('Please enter a password');
       return;
     }
 
     if (password.length < 6) {
-      ToastUtils.showError('Password must be at least 6 characters');
+      ToastUtils.showToast('Password must be at least 6 characters');
       return;
     }
 
     if (password != confirmPassword) {
-      ToastUtils.showError('Passwords do not match');
+      ToastUtils.showToast('Passwords do not match');
       return;
     }
 
     setState(() {
       _isLoading = true;
+      _loadingMessage = 'Creating secure password...';
     });
 
-    final success = await _authService.createPassword(password);
+    final success = await _createPasswordWithTimeout(password);
     if (success) {
-      ToastUtils.showSuccess('Password created successfully');
+      ToastUtils.showToast('Password created successfully');
       _passwordController.clear();
       _confirmPasswordController.clear();
+
+      await _checkBiometricState();
       
       // Check if user wants to set up biometrics
       if (_isBiometricAvailable) {
@@ -113,61 +120,115 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         _navigateToMainApp();
       }
     } else {
-      ToastUtils.showError('Failed to create password');
+      ToastUtils.showToast('Failed to create password');
     }
 
     setState(() {
       _isLoading = false;
+      _loadingMessage = 'Loading...';
     });
+  }
+
+  /// Create password with timeout to prevent hanging
+  Future<bool> _createPasswordWithTimeout(String password) async {
+    try {
+      return await _authService.createPassword(password).timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          debugPrint('Password creation timed out');
+          return false;
+        },
+      );
+    } catch (e) {
+      debugPrint('Password creation error: $e');
+      return false;
+    }
   }
 
   Future<void> _authenticateWithPassword() async {
     final password = _passwordController.text.trim();
 
     if (password.isEmpty) {
-      ToastUtils.showError('Please enter your password');
+      ToastUtils.showToast('Please enter your password');
       return;
     }
 
     setState(() {
       _isLoading = true;
+      _loadingMessage = 'Verifying password...';
     });
 
-    final success = await _authService.verifyPassword(password);
+    final success = await _verifyPasswordWithTimeout(password);
     if (success) {
       _passwordController.clear();
       _navigateToMainApp();
     } else {
-      ToastUtils.showError('Incorrect password');
+      ToastUtils.showToast('Incorrect password');
       // Clear password field for security
       _passwordController.clear();
     }
 
     setState(() {
       _isLoading = false;
+      _loadingMessage = 'Loading...';
     });
+  }
+
+  /// Verify password with timeout to prevent hanging
+  Future<bool> _verifyPasswordWithTimeout(String password) async {
+    try {
+      return await _authService.verifyPassword(password).timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          debugPrint('Password verification timed out');
+          return false;
+        },
+      );
+    } catch (e) {
+      debugPrint('Password verification error: $e');
+      return false;
+    }
   }
 
   Future<void> _authenticateWithBiometrics() async {
     setState(() {
       _isLoading = true;
+      _loadingMessage = 'Authenticating with $_biometricDisplayName...';
     });
 
-    final success = await _authService.authenticateWithBiometrics();
+    final success = await _authenticateBiometricsWithTimeout();
     if (success) {
       _navigateToMainApp();
     } else {
-      ToastUtils.showError('Biometric authentication failed');
+      ToastUtils.showToast('Biometric authentication failed');
     }
 
     setState(() {
       _isLoading = false;
+      _loadingMessage = 'Loading...';
     });
+  }
+
+  /// Authenticate with biometrics with timeout
+  Future<bool> _authenticateBiometricsWithTimeout() async {
+    try {
+      return await _authService.authenticateWithBiometrics().timeout(
+        const Duration(seconds: 30),
+        onTimeout: () {
+          debugPrint('Biometric authentication timed out');
+          return false;
+        },
+      );
+    } catch (e) {
+      debugPrint('Biometric authentication error: $e');
+      return false;
+    }
   }
 
   void _showBiometricSetupDialog() {
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (context) => AlertDialog(
         title: Text('Set up $_biometricDisplayName'),
         content: Text(
@@ -204,21 +265,62 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
     setState(() {
       _isLoading = true;
+      _loadingMessage = 'Setting up $_biometricDisplayName...';
     });
 
-    final success = await _authService.setupBiometricAuthentication(passphrase);
+    final success = await _setupBiometricsWithTimeout(passphrase);
     if (success) {
-      ToastUtils.showSuccess('$_biometricDisplayName enabled successfully');
+      ToastUtils.showToast('$_biometricDisplayName enabled successfully');
       await _checkBiometricState();
     } else {
-      ToastUtils.showError('Failed to enable $_biometricDisplayName');
+      ToastUtils.showToast('Failed to enable $_biometricDisplayName');
     }
 
     setState(() {
       _isLoading = false;
+      _loadingMessage = 'Loading...';
     });
 
     _navigateToMainApp();
+  }
+
+  /// Setup biometrics with timeout and progress updates
+  Future<bool> _setupBiometricsWithTimeout(String passphrase) async {
+    try {
+      // Step 1: Verify passphrase
+      setState(() {
+        _loadingMessage = 'Verifying passphrase...';
+      });
+      
+      final passphraseValid = await _authService.verifyPassword(passphrase).timeout(
+        const Duration(seconds: 5),
+        onTimeout: () {
+          debugPrint('Passphrase verification timed out');
+          return false;
+        },
+      );
+      
+      if (!passphraseValid) {
+        ToastUtils.showToast('Invalid passphrase');
+        return false;
+      }
+      
+      // Step 2: Setup biometric authentication
+      setState(() {
+        _loadingMessage = 'Setting up biometric authentication...';
+      });
+      
+      return await _authService.setupBiometricAuthentication(passphrase).timeout(
+        const Duration(seconds: 30),
+        onTimeout: () {
+          debugPrint('Biometric setup timed out');
+          return false;
+        },
+      );
+    } catch (e) {
+      debugPrint('Biometric setup error: $e');
+      return false;
+    }
   }
 
   /// Show dialog to get user's passphrase for biometric setup
@@ -284,7 +386,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   }
 
   void _navigateToMainApp() {
-    ToastUtils.showSuccess('Welcome to Locker!');
+    ToastUtils.showToast('Welcome to Locker!');
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => const MainScreen()),
@@ -298,10 +400,15 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
-              CircularProgressIndicator(),
-              SizedBox(height: 16),
-              Text('Loading...'),
+            children: [
+              const CircularProgressIndicator(),
+              const SizedBox(height: 16),
+              Text(_loadingMessage),
+              const SizedBox(height: 8),
+              const Text(
+                'Please wait...',
+                style: TextStyle(fontSize: 12, color: Colors.grey),
+              ),
             ],
           ),
         ),
@@ -425,6 +532,28 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   textAlign: TextAlign.center,
                 ),
               ],
+
+              // Debug buttons (only in debug mode)
+              if (kDebugMode) ...[
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: _testBiometricAvailability,
+                        child: const Text('Test Biometric'),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: _resetBiometricAuth,
+                        child: const Text('Reset Biometric'),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ],
           ),
         ),
@@ -439,6 +568,57 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       return Icons.face;
     } else {
       return Icons.security;
+    }
+  }
+
+  void _testBiometricAvailability() async {
+    final isAvailable = await _authService.isBiometricAvailable();
+    final isEnabled = await _authService.isBiometricEnabled();
+    final biometrics = await _authService.getAvailableBiometrics();
+    final displayName = _authService.getBiometricDisplayName(biometrics);
+
+    final message = '''
+Biometric Availability Test
+============================
+
+Is Biometric Available: $isAvailable
+Is Biometric Enabled: $isEnabled
+Available Biometrics: ${biometrics.join(', ')}
+Biometric Display Name: $displayName
+    ''';
+
+    ToastUtils.showToast(message);
+  }
+
+  void _resetBiometricAuth() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Reset Biometric Authentication'),
+        content: const Text(
+          'This will reset your biometric authentication settings. You will need to set it up again if you want to use biometric login.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Reset'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      final success = await _authService.resetBiometricAuth();
+      if (success) {
+        ToastUtils.showToast('Biometric authentication reset successfully');
+        await _checkBiometricState();
+      } else {
+        ToastUtils.showToast('Failed to reset biometric authentication');
+      }
     }
   }
 }

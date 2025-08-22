@@ -1,4 +1,4 @@
-package com.example.first_project
+package com.example.lockerapp
 
 import io.flutter.embedding.android.FlutterActivity
 
