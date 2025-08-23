@@ -1,0 +1,59 @@
+# production dockerfile for Flutter app
+FROM ubuntu:22.04 as builder 
+
+# prevent interactive prompts during package installation
+ENV DEBIAN_FRONTEND=noninteractive
+
+# install dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    git \
+    wget \
+    unzip \
+    xz-utils \
+    zip \
+    libgconf-2-4 \
+    && rm -rf /var/lib/apt/lists/*
+
+# set up flutter environment
+ENV FLUTTER_HOME="/opt/flutter"
+ENV PATH="$FLUTTER_HOME/bin:$PATH"
+
+# download and install flutter SDK (stable channel)
+RUN git clone https://github.com/flutter/flutter.git $FLUTTER_HOME && \
+    cd $FLUTTER_HOME && \
+    git checkout stable && \
+    flutter doctor
+
+# enable flutter web and desktop platforms
+RUN flutter config --enable-web
+
+# Set working directory
+WORKDIR /app
+
+# Copy pubspec files
+COPY pubspec.yaml pubspec.lock ./
+
+# Get dependencies
+RUN flutter pub get
+
+# Copy source code
+COPY . .
+
+# Build for web
+RUN flutter build web --release
+
+# production stage with Nginx
+FROM nginx:alpine as production
+
+# Copy built web files
+COPY --from=builder /app/build/web /usr/share/nginx/html
+
+# Copy custom nginx configuration
+COPY docker/nginx.conf /etc/nginx/nginx.conf
+
+# Expose port 80
+EXPOSE 80
+
+# Start Nginx
+CMD ["nginx", "-g", "daemon off;"]
