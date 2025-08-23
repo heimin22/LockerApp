@@ -1,0 +1,64 @@
+# Flutter/Dart related
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+build/
+.packages
+.metadata
+
+# IDE related
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# OS related
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Documentation
+README.md
+*.md
+
+# Logs
+*.log
+
+# Platform specific builds (these are rebuilt in container)
+android/app/debug/
+android/app/profile/
+android/app/release/
+ios/Flutter/.last_build_id
+linux/flutter/ephemeral/
+macos/Flutter/ephemeral/
+windows/flutter/ephemeral/
+
+# Dependencies (will be downloaded in container)
+node_modules/
+
+# Test files
+test/
+test_driver/
+integration_test/
+
+# Coverage
+coverage/
+
+# Analysis
+.analysis_options.yaml

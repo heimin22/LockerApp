@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  flutter-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: locker_app_dev
+    ports:
+      - "3000:3000"  # Flutter web dev server
+      - "9100:9100"  # Flutter DevTools
+    volumes:
+      # Mount source code for live development
+      - .:/app
+      # Preserve pub cache
+      - flutter_pub_cache:/root/.pub-cache
+      # Preserve Flutter SDK cache
+      - flutter_sdk_cache:/opt/flutter/.pub-cache
+    environment:
+      - FLUTTER_WEB_AUTO_DETECT=true
+    stdin_open: true
+    tty: true
+    command: bash -c "flutter pub get && flutter run -d web-server --web-hostname 0.0.0.0 --web-port 3000 --dart-define=ENVIRONMENT=development"
+
+  # Optional: Flutter web production build
+  flutter-prod:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    container_name: locker_app_prod
+    ports:
+      - "8080:80"
+    profiles:
+      - production
+
+  # Optional: Development tools container
+  flutter-tools:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: locker_app_tools
+    volumes:
+      - .:/app
+      - flutter_pub_cache:/root/.pub-cache
+    profiles:
+      - tools
+    command: bash
+
+volumes:
+  flutter_pub_cache:
+  flutter_sdk_cache:
+
+networks:
+  default:
+    name: locker_app_network
